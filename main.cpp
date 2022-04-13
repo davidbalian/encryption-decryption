@@ -8,8 +8,6 @@ int main() {
     Cipher cipher;
     string choice = "0";
 
-    cout << endl;
-
     do {
         cout << "\n1. Encode a message";
         cout << "\n2. Decode a message";

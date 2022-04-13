@@ -36,18 +36,18 @@ public:
     void formatMessage(int, string);
     void getKey();
     void plainTextToNumbers(string);
-    void print2DArray(char [][SIZE], int, int);
+    static void print2DArray(char [][SIZE], int, int);
     void sortKeyAndArrays(char [][SIZE]);
     void assignCipherText(char [][SIZE], int, int);
-    int validateKey(string);
+    static int validateKey(string);
 
     // member functions for decryption process
     void decrypt();
     void getMsgToDecrypt();
     void sortKey();
-    int validateMsgToDecrypt(string);
+    static int validateMsgToDecrypt(string);
     void getCiphertextLength();
-    void sortBackKeyArray(string, string, char [][SIZE]);
+    static void sortBackKeyArray(string, string, char [][SIZE]);
     void cipherToPlain(char [][SIZE], int, int);
 };
 

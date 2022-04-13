@@ -2,8 +2,6 @@
 // Created by David Balian on 26/03/2022.
 //
 
-// 03043 142022 32220 41204 13123 03233 01104
-
 #include "Cipher.h"
 #include <iostream>
 #include <cmath>
@@ -15,7 +13,8 @@
 using namespace std;
 
 Cipher::Cipher() {
-    cout << "\nEncryption/Decryption System\n" << endl;
+    cout << "\nEncryption/Decryption System" << endl;
+    actualCiphertextLength = 0;
 }
 
 void Cipher::encrypt() {
@@ -41,6 +40,7 @@ void Cipher::encrypt() {
     char unsortedKeyArray[SIZE][SIZE];
     char sortedKeyArray[SIZE][SIZE];
 
+    // initializes both sorted and unsorted arrays with plain text in numbers
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
             unsortedKeyArray[i][j] = plaintextInNumbers[(i * cols) + j];
@@ -48,6 +48,7 @@ void Cipher::encrypt() {
         }
     }
 
+    // prints unsorted key array
     for (int i = 0; i < key.length(); ++i) {
         cout << left << setw(4) << key[i];
     }
@@ -60,6 +61,7 @@ void Cipher::encrypt() {
 
     cout << endl;
 
+    // prints sorted key array
     for (int i = 0; i < key.length(); ++i) {
         cout << left << setw(4) << key[i];
     }
@@ -77,6 +79,7 @@ void Cipher::encrypt() {
     cout << endl;
 }
 
+// capitalizes all letters and removes numbers/symbols from message or key
 void Cipher::formatMessage(int keyOrMsg, string msgToFormat) {
     string tempMsg;
 
@@ -93,6 +96,7 @@ void Cipher::formatMessage(int keyOrMsg, string msgToFormat) {
     }
 }
 
+// validates key - checks if it contains each letter only once
 int Cipher::validateKey(string keyToValidate) {
     for (int i = 0; i < keyToValidate.length(); ++i) {
         for (int j = i + 1; j < keyToValidate.length(); ++j) {
@@ -105,12 +109,15 @@ int Cipher::validateKey(string keyToValidate) {
     return 1;
 }
 
+// gets key from user
 void Cipher::getKey() {
     int keyIsValid;
 
     do {
         cout << "\nEnter key: ";
         cin >> key;
+
+        formatMessage(1, key);
 
         keyIsValid = validateKey(key);
 
@@ -123,6 +130,7 @@ void Cipher::getKey() {
     cout << "\nFormatted key: " << key << endl << endl;
 }
 
+// converts plaintext message to numbers using alphabet array
 void Cipher::plainTextToNumbers(string plainTextToConvert) {
     for (int x = 0; x < plainTextToConvert.length(); ++x) {
         for (int i = 0; i < 5; ++i) {
@@ -140,17 +148,19 @@ void Cipher::plainTextToNumbers(string plainTextToConvert) {
     }
 }
 
+// prints a 2d array
 void Cipher::print2DArray(char array[SIZE][SIZE], int rows, int cols) {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
-                cout << left << setw(4);
-                isnumber(array[i][j]) ? cout << array[i][j] : cout << '-';
+            cout << left << setw(4);
+            isnumber(array[i][j]) ? cout << array[i][j] : cout << '-';
         }
 
         cout << "\n";
     }
 }
 
+// sorts characters of key and array columns based on key
 void Cipher::sortKeyAndArrays(char sorted[SIZE][SIZE]) {
     char temp;
 
@@ -171,20 +181,14 @@ void Cipher::sortKeyAndArrays(char sorted[SIZE][SIZE]) {
     }
 }
 
+// assigns value to ciphertext using sorted key array
 void Cipher::assignCipherText(char sorted[SIZE][SIZE], int rows, int cols) {
-//    for (int j = 0; j <= rows; ++j) {
-//        for (int i = 0; i < cols; ++i) {
-//            if (isnumber(sorted[i][j]))
-//                ciphertext += sorted[i][j];
-//        }
-//    }
-
-    for (int i = 0; i <= rows; ++i) {
+    for (int i = 0; i < cols; ++i) {
         ciphertext += ' ';
-        for (int j = 0; j < cols; ++j) {
-                if (isnumber(sorted[j][i])) {
-                    ciphertext += sorted[j][i];
-                }
+        for (int j = 0; j < rows; ++j) {
+            if (isnumber(sorted[j][i])) {
+                ciphertext += sorted[j][i];
+            }
         }
     }
 }
@@ -209,9 +213,14 @@ void Cipher::decrypt() {
     char unsortedKeyArray[SIZE][SIZE];
     char sortedKeyArray[SIZE][SIZE];
 
-    for (int i = 0; i < rows; ++i) {
-        for (int j = 0; j < cols; ++j) {
+    // removes spaces from cipher that might interfere with array
+    for (int j = 0; j < cols; ++j) {
+        for (int i = 0; i < rows; ++i) {
             int currIndex = (j * rows) + i;
+
+            if (isspace(cipherToDecrypt[currIndex + 1]) && isnumber(cipherToDecrypt[currIndex]) && i >= rows - 1) {
+                cipherToDecrypt.erase(currIndex + 1, 1);
+            }
 
             sortedKeyArray[i][j] = cipherToDecrypt[currIndex];
             unsortedKeyArray[i][j] = cipherToDecrypt[currIndex];
@@ -221,6 +230,7 @@ void Cipher::decrypt() {
 
     cout << endl;
 
+    // prints key and sorted array
     for (int i = 0; i < sortedKey.length(); ++i) {
         cout << left << setw(4) << sortedKey[i];
     }
@@ -229,25 +239,13 @@ void Cipher::decrypt() {
 
     print2DArray(sortedKeyArray, rows, cols);
 
+    // gets unsorted key array and sorts it back to match original  key
     sortBackKeyArray(key, sortedKey, unsortedKeyArray);
 
 
     cout << endl;
-    for (int i = 0; i < cols; ++i) {
-        if (isspace(unsortedKeyArray[0][i])) {
-            for (int j = 0; j < rows; ++j) {
-                cout << unsortedKeyArray[j][i] << endl;
 
-                char temp = unsortedKeyArray[j][i];
-                unsortedKeyArray[j][i] = unsortedKeyArray[j + 1][i];
-                unsortedKeyArray[j + 1][i] = temp;
-            }
-        }
-    }
-    cout << endl;
-
-    cout << endl;
-
+    // prints original key array
     for (int i = 0; i < key.length(); ++i) {
         cout << left << setw(4) << key[i];
     }
@@ -259,6 +257,7 @@ void Cipher::decrypt() {
     cipherToPlain(unsortedKeyArray, rows, cols);
 }
 
+// gets message to decrypt from user
 void Cipher::getMsgToDecrypt() {
     int msgIsValid;
 
@@ -275,15 +274,17 @@ void Cipher::getMsgToDecrypt() {
     } while(!msgIsValid);
 }
 
+// validates message to decrypt - only accepts numbers and spaces
 int Cipher::validateMsgToDecrypt(string msgToValidate) {
     for (int i = 0; i < msgToValidate.length(); ++i) {
-        if (isalpha(msgToValidate[i]))
+        if (!isnumber(msgToValidate[i]) && !isspace(msgToValidate[i]))
             return 0;
     }
 
     return 1;
 }
 
+// sorts key alphabetically
 void Cipher::sortKey() {
     char temp;
     sortedKey = key;
@@ -299,6 +300,7 @@ void Cipher::sortKey() {
     }
 }
 
+// gets actual length of cipher without the spaces
 void Cipher::getCiphertextLength() {
     int length = 0;
 
@@ -309,6 +311,7 @@ void Cipher::getCiphertextLength() {
     actualCiphertextLength = length;
 }
 
+// sorts array to match original key
 void Cipher::sortBackKeyArray(string unsortKey, string sKey, char sorted[][SIZE]) {
     for (int i = 0; i < unsortKey.length(); ++i) {
         for (int j = 0; j < unsortKey.length(); ++j) {
@@ -327,6 +330,7 @@ void Cipher::sortBackKeyArray(string unsortKey, string sKey, char sorted[][SIZE]
     }
 }
 
+// converts from cipher to plaintext based on alphabet array
 void Cipher::cipherToPlain(char unsortedArray[][SIZE], int rows, int cols) {
     for (int i = 0; i < rows; ++i) {
         for (int j = 0; j < cols; ++j) {
